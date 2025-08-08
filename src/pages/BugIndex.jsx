@@ -3,21 +3,29 @@ import { showSuccessMsg, showErrorMsg } from "../services/event-bus.service.js"
 import { BugList } from "../cmps/BugList.jsx"
 import { useState } from "react"
 import { useEffect } from "react"
+import { BugFilter } from "../cmps/BugFilter.jsx"
+import { useSearchParams } from "react-router-dom"
+import { getTruthyValues } from "../services/util.service.js"
+import { Logger } from "sass"
 
 export function BugIndex() {
+	const [searchParams, setSearchParams] = useSearchParams()
 	const [bugs, setBugs] = useState([])
-
+	const [filterBy, setFilterBy] = useState(
+		bugsService.getFilterFromSrcParams(searchParams)
+	)
 	useEffect(() => {
-		const intervalId = setTimeout(() => loadBugs(), 1000)
+		loadBugs()
+		setSearchParams(getTruthyValues(filterBy))
+	}, [filterBy])
 
-		return () => {
-			console.log("Cleared")
-			clearTimeout(intervalId)
-		}
-	}, [])
+	function onSetFilter(filterBy) {
+		setFilterBy(prevFilter => ({ ...prevFilter, ...filterBy }))
+	}
 
 	async function loadBugs() {
-		const bugs = await bugsService.query()
+		const bugs = await bugsService.query(filterBy)
+		console.log("bugs", bugs)
 		setBugs(bugs)
 	}
 
@@ -36,10 +44,28 @@ export function BugIndex() {
 	}
 
 	async function onAddBug() {
+		const bugTitle = prompt("Bug title?")
+		if (!bugTitle) {
+			showErrorMsg("Bug title is empty.")
+			return
+		}
+
+		const bugDescription = prompt("Bug description?")
+		if (!bugDescription) {
+			showErrorMsg("Bug description is empty.")
+			return
+		}
+
+		const bugSeverity = +prompt("Bug severity?")
+		if (!bugSeverity) {
+			showErrorMsg("Bug severity is empty.")
+			return
+		}
+
 		const bug = {
-			title: prompt("Bug title?"),
-			description: prompt("Bug description?"),
-			severity: +prompt("Bug severity?"),
+			title: bugTitle,
+			description: bugDescription,
+			severity: bugSeverity,
 		}
 		try {
 			const savedBug = await bugsService.save(bug)
@@ -53,12 +79,32 @@ export function BugIndex() {
 	}
 
 	async function onEditBug(bug) {
+		const title = prompt("New title?")
+
+		if (!title) {
+			showErrorMsg("title is empty.")
+			return
+		}
+
 		const description = prompt("New description?")
+
+		if (!description) {
+			showErrorMsg("Description is empty.")
+			return
+		}
+
 		const severity = +prompt("New severity?")
-		const bugToSave = { ...bug, severity, description }
+
+		if (!severity) {
+			showErrorMsg("Severity is empty.")
+			return
+		}
+
+		const bugToSave = { ...bug, title, severity, description }
+
 		try {
 			const savedBug = await bugsService.save(bugToSave)
-			console.log("Updated Bug:", savedBug)
+			console.log("IDAN Updated Bug:", savedBug)
 			setBugs(prevBugs =>
 				prevBugs.map(currBug =>
 					currBug._id === savedBug._id ? savedBug : currBug
@@ -71,14 +117,12 @@ export function BugIndex() {
 		}
 	}
 
-	if (!bugs || bugs.length === 0)
-		return <div className="loader">Loading...</div>
-
 	return (
 		<main className="main-layout">
 			<h3>Bugs App</h3>
 			<main>
 				<button onClick={onAddBug}>Add Bug</button>
+				<BugFilter defaultFilter={filterBy} onSetFilter={onSetFilter} />
 				<BugList
 					bugs={bugs}
 					onRemoveBug={onRemoveBug}

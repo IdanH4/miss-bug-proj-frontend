@@ -1,0 +1,37 @@
+.bug-filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    /* better than hardcoded 10px */
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-width: 250px;
+    background-color: #f9f9f9;
+
+    input {
+        padding: 0.5rem;
+        border: 1px solid #bbb;
+        border-radius: 4px;
+        font-size: 1rem;
+
+        &:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+        }
+    }
+}
+
+
+/* Accessible label helper */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}

@@ -14,18 +14,28 @@ export const bugsService = {
 	getEmptyBug,
 	getDefaultFilter,
 	getById: get,
+	getFilterFromSrcParams,
+}
+
+function getFilterFromSrcParams(srcParams) {
+	const title = srcParams.get("title") || ""
+	const severity = srcParams.get("severity") || ""
+	return {
+		title,
+		severity,
+	}
 }
 
 async function query(filterBy = {}) {
 	var { data: bugs } = await axios.get(BASE_URL)
 
-	if (filterBy.txt) {
-		const regExp = new RegExp(filterBy.txt, "i")
-		bugs = bugs.filter(bug => regExp.test(bug.vendor))
+	if (filterBy.title) {
+		const regExp = new RegExp(filterBy.title, "i")
+		bugs = bugs.filter(bug => regExp.test(bug.title))
 	}
 
-	if (filterBy.minSpeed) {
-		bugs = bugs.filter(bug => bug.speed >= filterBy.minSpeed)
+	if (filterBy.severity) {
+		bugs = bugs.filter(bug => bug.severity === filterBy.severity)
 	}
 	return bugs
 }
@@ -48,6 +58,7 @@ async function save(bug) {
 		bug.severity
 	}&description=${bug.description}`
 	const url = BASE_URL + "save" + queryParams
+	console.log("url", url)
 
 	const { data: savedBug } = await axios.get(url)
 	return savedBug
