@@ -45,10 +45,9 @@ export function BugIndex() {
 
 	async function onAddBug() {
 		const bugTitle = prompt("Bug title?")
-		if (!bugTitle) {
-			showErrorMsg("Bug title is empty.")
-			return
-		}
+		
+		if (!bugTitle) return 
+		
 
 		const bugDescription = prompt("Bug description?")
 		if (!bugDescription) {
@@ -82,7 +81,6 @@ export function BugIndex() {
 		const title = prompt("New title?")
 
 		if (!title) {
-			showErrorMsg("title is empty.")
 			return
 		}
 

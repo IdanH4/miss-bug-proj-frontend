@@ -3,8 +3,13 @@ import debounce from "debounce"
 
 export function BugFilter({ defaultFilter, onSetFilter }) {
 	const [filterByToEdit, setFilterByToEdit] = useState(defaultFilter)
-	const onSetFilterDebounce = useRef(debounce(onSetFilter, 500)).current
-
+	const onSetFilterDebounce = useRef(debounce(onSetFilter, 1000)).current
+	const titleRef = useRef(null)
+	
+	useEffect(() => {
+        if (titleRef.current) titleRef.current.focus()
+    }, [])
+	
 	function handleChange({ target }) {
 		let { value, name: field } = target
 		switch (target.type) {
@@ -35,6 +40,7 @@ export function BugFilter({ defaultFilter, onSetFilter }) {
 				id="title"
 				name="title"
 				type="text"
+				ref={titleRef}
 				placeholder="Title"
 				value={title}
 				onChange={handleChange}
