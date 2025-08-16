@@ -4,7 +4,7 @@ var axios = Axios.create({
 	withCredentials: true,
 })
 
-const BASE_URL = "//localhost:3030/api/bug/"
+const BASE_URL = "http://localhost:3030/api/bug/"
 
 export const bugsService = {
 	query,
@@ -48,20 +48,26 @@ async function get(bugId) {
 }
 
 async function remove(bugId) {
-	const url = BASE_URL + bugId + "/remove"
-	var { data: res } = await axios.get(url)
+	const url = BASE_URL + bugId
+	var { data: res } = await axios.delete(url)
 	return res
 }
 
 async function save(bug) {
-	const queryParams = `?_id=${bug._id || ""}&title=${bug.title}&severity=${
-		bug.severity
-	}&description=${bug.description}`
-	const url = BASE_URL + "save" + queryParams
-	console.log("url", url)
+	// const queryParams = `?_id=${bug._id || ""}&title=${bug.title}&severity=${
+	// 	bug.severity
+	// }&description=${bug.description}`
 
-	const { data: savedBug } = await axios.get(url)
-	return savedBug
+	console.log("bug from front-end", bug)
+
+	try {
+		const { data: savedBug } = await axios.post(BASE_URL, bug) // const { data: savedBug } = await axios.post(BASE_URL + queryParams, bug)
+		console.log("savedBug from front-end", savedBug)
+		return savedBug
+	} catch (err) {
+		console.error("Error saving bug from front-end:", err)
+		throw err
+	}
 }
 
 function getEmptyBug(vendor = "", speed = "") {
